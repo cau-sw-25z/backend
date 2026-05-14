@@ -34,7 +34,7 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
-	// Swagger (API 문서를 자동으로 만들어주는 의존성 - 5번 챕터에서 설명)
+	// Swagger (API 문서를 자동으로 만들어주는 의존성)
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
 
 	// MySQL (DB 접속 의존성)
