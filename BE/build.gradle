@@ -39,8 +39,12 @@ dependencies {
 
 	// MySQL (DB 접속 의존성)
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// Validation (DTO 요청값 검증 및 MethodArgumentNotValidException 처리를 위한 의존성)
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
