@@ -33,6 +33,9 @@ public class SecurityConfig {
                         // Swagger API 문서 JSON 접근 허용
                         .requestMatchers("/v3/api-docs/**").permitAll()
 
+                        // 설문 문항 조회 API 접근 허용
+                        .requestMatchers("/survey/questions").permitAll()
+
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 );
