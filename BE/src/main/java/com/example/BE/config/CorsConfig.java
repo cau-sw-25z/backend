@@ -19,7 +19,10 @@ public class CorsConfig {
 
         // 프론트엔드 로컬 개발 서버 주소 허용
         // Vite 기본 포트는 5173
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://101.79.23.233"       // FE 포트 확인 후 추가
+        ));
 
         // 허용할 HTTP 메서드 목록
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
