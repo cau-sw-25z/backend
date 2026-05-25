@@ -1,2 +1,16 @@
-# 실제 운영 서버 설정
-# 민감한 정보 제외하고 나중에 채우기.
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/quant_db
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+jwt:
+  secret: ${JWT_SECRET}
