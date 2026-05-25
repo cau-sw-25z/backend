@@ -30,12 +30,16 @@ public class User {
     @Column(name = "nickname", nullable = false, length = 255)
     private String nickname;
 
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public User(String email, String nickname) {
+    public User(String email, String nickname, String password) {
         this.email = email;
         this.nickname = nickname;
+        this.password = password;
     }
 
     @PrePersist

@@ -26,7 +26,7 @@ class UserRepositoryTest {
         String nickname = "테스트유저";
 
         // User 엔티티 생성
-        User user = new User(email, nickname);
+        User user = new User(email, nickname, "testpassword");
 
         // DB에 User 저장
         User savedUser = userRepository.saveAndFlush(user);

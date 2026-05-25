@@ -2,22 +2,26 @@ package com.example.BE.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    // 비밀키
-    private final SecretKey key = Jwts.SIG.HS256.key().build();
+    private final SecretKey key;
 
-    // 만료 시간
-    private final long ACCESS_TOKEN_EXPIRATION  = 1000 * 60 * 30;           // 30분
-    private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;  // 7일
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
-    // Access Token 생성
+    private final long ACCESS_TOKEN_EXPIRATION  = 1000 * 60 * 30;
+    private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+
     public String generateAccessToken(Long userId, String email) {
         return Jwts.builder()
                 .subject(email)
@@ -28,7 +32,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Refresh Token 생성
     public String generateRefreshToken(Long userId, String email) {
         return Jwts.builder()
                 .subject(email)
@@ -39,17 +42,14 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 토큰에서 이메일 꺼내기
     public String getEmail(String token) {
         return getClaims(token).getSubject();
     }
 
-    // 토큰에서 userId 꺼내기
     public Long getUserId(String token) {
         return getClaims(token).get("userId", Long.class);
     }
 
-    // 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
             getClaims(token);
@@ -59,7 +59,6 @@ public class JwtUtil {
         }
     }
 
-    // 토큰 파싱 (내부용)
     private Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(key)
