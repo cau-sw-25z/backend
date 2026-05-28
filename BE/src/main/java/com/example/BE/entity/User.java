@@ -33,6 +33,9 @@ public class User {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
+    @Column(name = "risk_level", length = 50)
+    private String riskLevel;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -40,6 +43,10 @@ public class User {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
+    }
+
+    public void updateRiskLevel(String riskLevel) {
+    this.riskLevel = riskLevel;
     }
 
     @PrePersist

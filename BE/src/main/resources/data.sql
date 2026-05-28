@@ -1,3 +1,6 @@
+INSERT INTO users (id, email, nickname, password, risk_level, created_at)
+VALUES (1, 'test@example.com', '테스트유저', 'test-password', null, NOW());
+
 INSERT INTO surveys (id, title, description, active)
 VALUES (1, '투자 성향 설문', '사용자의 투자 성향을 파악하기 위한 설문입니다.', true);
 
