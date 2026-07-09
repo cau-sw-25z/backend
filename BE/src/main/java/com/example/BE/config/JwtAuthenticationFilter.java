@@ -18,35 +18,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        // 1. Header에서 토큰 꺼내기
         String token = extractToken(request);
 
-        // 2. 토큰 유효하면 SecurityContext에 저장
         if (token != null && jwtUtil.validateToken(token)) {
             Long userId = jwtUtil.getUserId(token);
             String email = jwtUtil.getEmail(token);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(email, null, List.of());
+
+            // 나중에 Portfolio / Watchlist에서 현재 로그인 유저 id 꺼낼 때 사용 가능
             authentication.setDetails(userId);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        // 3. 다음 필터로 넘기기
         filterChain.doFilter(request, response);
     }
 
-    // Header에서 토큰 추출
     private String extractToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return null;
         }
-        return null;
+
+        return authorizationHeader.substring(7);
     }
 }
