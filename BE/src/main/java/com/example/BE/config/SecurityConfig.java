@@ -1,43 +1,76 @@
 package com.example.BE.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 // Spring Security 관련 설정 클래스
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtUtil jwtUtil;
 
     // Spring Security의 필터 체인을 Bean으로 등록
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // REST API 서버에서는 일반적으로 CSRF 보호를 비활성화함
-                // JWT 기반 인증을 사용할 경우에도 보통 disable 처리함
-                .csrf(csrf -> csrf.disable())
+                // REST API 서버에서는 CSRF 보호 비활성화
+                .csrf(AbstractHttpConfigurer::disable)
 
-                // CorsConfig에서 정의한 CORS 설정을 Spring Security에 적용
+                // Form Login / Basic Auth 사용 안 함
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+
+                // CorsConfig에서 정의한 CORS 설정 적용
                 .cors(Customizer.withDefaults())
+
+                // JWT 기반 인증이므로 세션 사용 안 함
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
 
                 // 요청별 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        // Health Check API는 인증 없이 접근 가능
+                        // CORS preflight 요청 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Health Check API
                         .requestMatchers("/api/health").permitAll()
 
-                        // Swagger UI 접근 허용
+                        // Auth API
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // Swagger UI
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
-
-                        // Swagger API 문서 JSON 접근 허용
                         .requestMatchers("/v3/api-docs/**").permitAll()
 
-                        // 그 외 모든 요청은 인증 필요
+                        // 그 외 API는 인증 필요
                         .anyRequest().authenticated()
+                )
+
+                // JWT 필터 등록
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtUtil),
+                        UsernamePasswordAuthenticationFilter.class
                 );
 
-        // 설정이 적용된 SecurityFilterChain 반환
         return http.build();
+    }
+
+    // 비밀번호 암호화용 Bean
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
