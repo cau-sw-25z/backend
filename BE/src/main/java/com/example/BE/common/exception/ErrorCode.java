@@ -27,7 +27,11 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_404", "사용자를 찾을 수 없습니다."),
 
     // ── Stock ───────────────────────────────────────────────
-    STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "STOCK_404", "종목을 찾을 수 없습니다.");
+    STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "STOCK_404", "종목을 찾을 수 없습니다."),
+
+    // ── WatchList ───────────────────────────────────────────
+    WATCHLIST_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "WATCHLIST_400_DUPLICATE", "이미 관심종목에 등록된 종목입니다."),
+    WATCHLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "WATCHLIST_404", "관심종목에서 해당 종목을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
