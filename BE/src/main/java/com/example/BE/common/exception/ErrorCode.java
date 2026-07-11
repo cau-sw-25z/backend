@@ -31,7 +31,11 @@ public enum ErrorCode {
 
     // ── WatchList ───────────────────────────────────────────
     WATCHLIST_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "WATCHLIST_400_DUPLICATE", "이미 관심종목에 등록된 종목입니다."),
-    WATCHLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "WATCHLIST_404", "관심종목에서 해당 종목을 찾을 수 없습니다.");
+    WATCHLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "WATCHLIST_404", "관심종목에서 해당 종목을 찾을 수 없습니다."),
+
+    // ── Portfolio ───────────────────────────────────────────
+    PORTFOLIO_NOT_FOUND(HttpStatus.NOT_FOUND, "PORTFOLIO_404", "포트폴리오를 찾을 수 없습니다."),
+    PORTFOLIO_FORBIDDEN(HttpStatus.FORBIDDEN, "PORTFOLIO_403", "본인의 포트폴리오만 접근할 수 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
