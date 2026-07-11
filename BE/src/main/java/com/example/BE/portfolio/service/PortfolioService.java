@@ -105,12 +105,12 @@ public class PortfolioService {
 
         portfolioStockRepository.deleteByPortfolio_Id(portfolioId);
         portfolioStockRepository.flush();
-        portfolioRepository.delete(portfolio);
 
         List<PortfolioStock> portfolioStocks = stocks.stream()
                 .map(stock -> new PortfolioStock(portfolio, stock))
                 .toList();
         portfolioStockRepository.saveAll(portfolioStocks);
+        portfolioStockRepository.flush();
 
         return toDetailResponse(portfolio, portfolioStocks);
     }
@@ -121,6 +121,7 @@ public class PortfolioService {
         Portfolio portfolio = getOwnedPortfolio(portfolioId, userId);
 
         portfolioStockRepository.deleteByPortfolio_Id(portfolioId);
+        portfolioStockRepository.flush();
         portfolioRepository.delete(portfolio);
     }
 
