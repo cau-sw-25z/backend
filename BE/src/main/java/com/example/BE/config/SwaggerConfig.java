@@ -1,22 +1,32 @@
 package com.example.BE.config;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// Swagger 문서의 기본 정보를 설정하는 클래스
-@OpenAPIDefinition(
-        info = @Info(
-                // Swagger UI 상단에 표시될 프로젝트명
-                title = "BE API",
-
-                // API 문서 버전
-                version = "v1.0.0",
-
-                // API 문서 설명
-                description = "Backend API Documentation"
-        )
-)
 @Configuration
 public class SwaggerConfig {
+
+        private static final String SECURITY_SCHEME_NAME = "Bearer Authentication";
+
+        @Bean
+        public OpenAPI openAPI() {
+                return new OpenAPI()
+                        .info(new Info()
+                                .title("BE API")
+                                .description("Backend API Documentation")
+                                .version("v1.0.0"))
+                        .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
+                        .components(new Components()
+                                .addSecuritySchemes(SECURITY_SCHEME_NAME,
+                                        new SecurityScheme()
+                                                .name(SECURITY_SCHEME_NAME)
+                                                .type(SecurityScheme.Type.HTTP)
+                                                .scheme("bearer")
+                                                .bearerFormat("JWT")));
+        }
 }
