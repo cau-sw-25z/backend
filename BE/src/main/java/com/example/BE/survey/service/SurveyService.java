@@ -36,7 +36,7 @@ public class SurveyService {
 
     public SurveyQuestionResponse getSurveyQuestions() {
         Survey survey = surveyRepository.findByActiveTrue()
-                .orElseThrow(() -> new IllegalStateException("활성화된 설문이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SURVEY_NOT_FOUND));
 
         return SurveyQuestionResponse.from(survey);
     }
@@ -46,13 +46,13 @@ public class SurveyService {
         long userId = getCurrentUserId();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         
 
         List<Choice> choices = choiceRepository.findAllById(request.getChoiceIds());
 
         if (choices.size() != request.getChoiceIds().size()) {
-            throw new IllegalArgumentException("존재하지 않는 선택지가 포함되어 있습니다.");
+            throw new CustomException(ErrorCode.SURVEY_INVALID_CHOICE);
         }
 
         int totalScore = choices.stream()
@@ -73,7 +73,7 @@ public class SurveyService {
         Long userId = getCurrentUserId();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         
         return new SurveyResultResponse(user.getId(), user.getRiskLevel());
     }

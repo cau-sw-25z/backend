@@ -31,7 +31,11 @@ public enum ErrorCode {
 
     // ── WatchList ───────────────────────────────────────────
     WATCHLIST_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "WATCHLIST_400_DUPLICATE", "이미 관심종목에 등록된 종목입니다."),
-    WATCHLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "WATCHLIST_404", "관심종목에서 해당 종목을 찾을 수 없습니다.");
+    WATCHLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "WATCHLIST_404", "관심종목에서 해당 종목을 찾을 수 없습니다."),
+
+    // ── Survey ──────────────────────────────────────────────
+    SURVEY_NOT_FOUND(HttpStatus.NOT_FOUND, "SURVEY_404", "활성화된 설문이 없습니다."),
+    SURVEY_INVALID_CHOICE(HttpStatus.BAD_REQUEST, "SURVEY_400_CHOICE", "존재하지 않거나 유효하지 않은 선택지가 포함되어 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
