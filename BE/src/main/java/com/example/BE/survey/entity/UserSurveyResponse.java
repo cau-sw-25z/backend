@@ -1,10 +1,13 @@
-package com.example.BE.entity;
+package com.example.BE.survey.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -13,40 +16,40 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import com.example.BE.entity.User;
+
 @Getter
 @Entity
-@Table(name = "users")
+@Table(name = "user_survey_responses")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class UserSurveyResponse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true, length = 255)
-    private String email;
+    // 어떤 사용자의 설문 응답인지
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "nickname", nullable = false, length = 255)
-    private String nickname;
+    // 총점
+    @Column(name = "total_score", nullable = false)
+    private int totalScore;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
-
-    @Column(name = "risk_level", length = 50)
+    // 산출된 투자 성향 등급
+    @Column(name = "risk_level", nullable = false, length = 50)
     private String riskLevel;
 
+    // 응답 저장 시간
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public User(String email, String nickname, String passwordHash) {
-        this.email = email;
-        this.nickname = nickname;
-        this.passwordHash = passwordHash;
-    }
-
-    public void updateRiskLevel(String riskLevel) {
-    this.riskLevel = riskLevel;
+    public UserSurveyResponse(User user, int totalScore, String riskLevel) {
+        this.user = user;
+        this.totalScore = totalScore;
+        this.riskLevel = riskLevel;
     }
 
     @PrePersist
