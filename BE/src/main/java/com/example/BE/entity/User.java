@@ -30,8 +30,8 @@ public class User {
     @Column(name = "nickname", nullable = false, length = 255)
     private String nickname;
 
-    @Column(name = "password", nullable = false, length = 255)
-    private String password;
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash;
 
     @Column(name = "risk_level", length = 50)
     private String riskLevel;
@@ -39,10 +39,10 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public User(String email, String nickname, String password) {
+    public User(String email, String nickname, String passwordHash) {
         this.email = email;
         this.nickname = nickname;
-        this.password = password;
+        this.passwordHash = passwordHash;
     }
 
     public void updateRiskLevel(String riskLevel) {
