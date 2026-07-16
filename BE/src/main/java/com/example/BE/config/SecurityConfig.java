@@ -54,9 +54,9 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
-                                       
-                        // 설문 문항 조회 API 접근 허용
-                        .requestMatchers("/survey/**").permitAll()
+                        
+                        // 설문 문항 조회는 인증 없이, 응답 저장/결과 조회는 로그인 필요
+                        .requestMatchers(HttpMethod.GET, "/survey/questions").permitAll()
 
                         // 그 외 API는 인증 필요
                         .anyRequest().authenticated()

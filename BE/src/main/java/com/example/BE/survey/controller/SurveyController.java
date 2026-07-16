@@ -1,18 +1,18 @@
-package com.example.BE.controller;
+package com.example.BE.survey.controller;
 
-import com.example.BE.dto.SurveyQuestionResponse;
-import com.example.BE.service.SurveyService;
+import com.example.BE.survey.dto.SurveyQuestionResponse;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.BE.dto.SurveyResponseRequest;
-import com.example.BE.dto.SurveyResultResponse;
-import com.example.BE.dto.SurveyResponseResult;
+import com.example.BE.survey.dto.SurveyResponseRequest;
+import com.example.BE.survey.dto.SurveyResultResponse;
+import com.example.BE.survey.service.SurveyService;
+import com.example.BE.survey.dto.SurveyResponseResult;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class SurveyController {
     }
 
     @GetMapping("/survey/result")
-    public SurveyResultResponse getSurveyResult(@RequestParam Long userId) {
-        return surveyService.getSurveyResult(userId);
+    public SurveyResultResponse getSurveyResult() {
+        return surveyService.getSurveyResult();
     }
 }

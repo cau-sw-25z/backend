@@ -1,10 +1,10 @@
-package com.example.BE.dto;
-
-import com.example.BE.entity.Choice;
-import com.example.BE.entity.Question;
-import com.example.BE.entity.Survey;
+package com.example.BE.survey.dto;
 
 import java.util.List;
+
+import com.example.BE.survey.entity.Choice;
+import com.example.BE.survey.entity.Question;
+import com.example.BE.survey.entity.Survey;
 
 public record SurveyQuestionResponse(
         Long surveyId,

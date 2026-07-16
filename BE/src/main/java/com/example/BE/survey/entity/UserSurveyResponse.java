@@ -1,4 +1,4 @@
-package com.example.BE.entity;
+package com.example.BE.survey.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
+import com.example.BE.entity.User;
 
 @Getter
 @Entity

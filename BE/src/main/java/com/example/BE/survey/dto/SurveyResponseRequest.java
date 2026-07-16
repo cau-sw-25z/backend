@@ -1,4 +1,4 @@
-package com.example.BE.dto;
+package com.example.BE.survey.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +9,5 @@ import java.util.List;
 @NoArgsConstructor
 public class SurveyResponseRequest {
 
-    private Long userId;
     private List<Long> choiceIds;
 }

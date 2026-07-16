@@ -1,20 +1,26 @@
-package com.example.BE.service;
+package com.example.BE.survey.service;
 
-import com.example.BE.dto.SurveyQuestionResponse;
-import com.example.BE.dto.SurveyResponseRequest;
-import com.example.BE.dto.SurveyResponseResult;
-import com.example.BE.dto.SurveyResultResponse;
-import com.example.BE.entity.Choice;
-import com.example.BE.entity.Survey;
+import com.example.BE.survey.dto.SurveyQuestionResponse;
+import com.example.BE.survey.dto.SurveyResponseRequest;
+import com.example.BE.survey.dto.SurveyResponseResult;
+import com.example.BE.survey.dto.SurveyResultResponse;
 import com.example.BE.entity.User;
-import com.example.BE.entity.UserSurveyResponse;
-import com.example.BE.repository.ChoiceRepository;
-import com.example.BE.repository.SurveyRepository;
 import com.example.BE.repository.UserRepository;
-import com.example.BE.repository.UserSurveyResponseRepository;
+import com.example.BE.survey.entity.Choice;
+import com.example.BE.survey.entity.Survey;
+import com.example.BE.survey.entity.UserSurveyResponse;
+import com.example.BE.survey.repository.ChoiceRepository;
+import com.example.BE.survey.repository.SurveyRepository;
+import com.example.BE.survey.repository.UserSurveyResponseRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.BE.common.exception.CustomException;
+import com.example.BE.common.exception.ErrorCode;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -37,7 +43,9 @@ public class SurveyService {
 
     @Transactional
     public SurveyResponseResult saveSurveyResponse(SurveyResponseRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        long userId = getCurrentUserId();
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         
 
@@ -61,7 +69,9 @@ public class SurveyService {
         return new SurveyResponseResult(user.getId(), totalScore, riskLevel);
     }
 
-    public SurveyResultResponse getSurveyResult(Long userId) {
+    public SurveyResultResponse getSurveyResult() {
+        Long userId = getCurrentUserId();
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         
@@ -87,4 +97,21 @@ public class SurveyService {
 
         return "AGGRESSIVE";
     }
+
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || authentication.getDetails() == null){
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Object details = authentication.getDetails();
+
+       if(details instanceof Long userId) {
+            return userId;
+       }
+
+       throw new CustomException(ErrorCode.UNAUTHORIZED);
+    }
+    
 }

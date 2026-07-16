@@ -1,7 +1,8 @@
-package com.example.BE.repository;
+package com.example.BE.survey.repository;
 
-import com.example.BE.entity.Survey;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.BE.survey.entity.Survey;
 
 import java.util.Optional;
 

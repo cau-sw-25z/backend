@@ -1,14 +1,11 @@
-package com.example.BE.entity;
+package com.example.BE.survey.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -21,32 +18,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "questions")
+@Table(name = "surveys")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Question {
+public class Survey {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 이 문항이 속한 설문
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "survey_id", nullable = false)
-    private Survey survey;
+    // 설문 제목
+    @Column(nullable = false, length = 100)
+    private String title;
 
-    // 문항 내용
-    @Column(nullable = false, length = 500)
-    private String content;
+    // 설문 설명
+    @Column(length = 500)
+    private String description;
 
-    // 문항 순서
+    // 현재 사용 중인 설문인지 여부
     @Column(nullable = false)
-    private Integer displayOrder;
+    private Boolean active;
 
-    // 이 문항이 가진 선택지 목록
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Survey 1개는 Question 여러 개를 가진다
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Choice> choices = new ArrayList<>();
+    private List<Question> questions = new ArrayList<>();
 }

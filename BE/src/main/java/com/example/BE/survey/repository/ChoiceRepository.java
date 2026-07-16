@@ -1,7 +1,8 @@
-package com.example.BE.repository;
+package com.example.BE.survey.repository;
 
-import com.example.BE.entity.Choice;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.BE.survey.entity.Choice;
 
 public interface ChoiceRepository extends JpaRepository<Choice, Long> {
 }
