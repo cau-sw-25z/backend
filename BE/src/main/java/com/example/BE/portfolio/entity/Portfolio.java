@@ -6,8 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Entity
 @Table(name = "portfolios")
@@ -27,19 +25,9 @@ public class Portfolio {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
     public Portfolio(User user, String name) {
         this.user = user;
         this.name = name;
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
     }
 
     public void rename(String name) {

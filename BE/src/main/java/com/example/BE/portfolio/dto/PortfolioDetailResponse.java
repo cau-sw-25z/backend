@@ -1,7 +1,6 @@
 package com.example.BE.portfolio.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public record PortfolioDetailResponse(
@@ -9,14 +8,15 @@ public record PortfolioDetailResponse(
         String name,
         int stockCount,
         BigDecimal totalValuation,
-        LocalDateTime createdAt,
-        List<PortfolioStockItem> stocks
+        List<PortfolioItemDetail> items
 ) {
-    public record PortfolioStockItem(
+    public record PortfolioItemDetail(
             Long stockId,
             String ticker,
             String name,
             String market,
+            BigDecimal avgPrice,
+            Integer quantity,
             BigDecimal currentPrice,
             BigDecimal weightPercent
     ) {

@@ -5,13 +5,14 @@ import com.example.BE.common.exception.ErrorCode;
 import com.example.BE.entity.User;
 import com.example.BE.portfolio.dto.CreatePortfolioRequest;
 import com.example.BE.portfolio.dto.PortfolioDetailResponse;
+import com.example.BE.portfolio.dto.PortfolioItemRequest;
 import com.example.BE.portfolio.dto.PortfolioListResponse;
 import com.example.BE.portfolio.dto.PortfolioSummaryResponse;
 import com.example.BE.portfolio.dto.UpdatePortfolioRequest;
 import com.example.BE.portfolio.entity.Portfolio;
-import com.example.BE.portfolio.entity.PortfolioStock;
+import com.example.BE.portfolio.entity.PortfolioItem;
+import com.example.BE.portfolio.repository.PortfolioItemRepository;
 import com.example.BE.portfolio.repository.PortfolioRepository;
-import com.example.BE.portfolio.repository.PortfolioStockRepository;
 import com.example.BE.repository.UserRepository;
 import com.example.BE.stock.entity.PriceHistory;
 import com.example.BE.stock.entity.Stock;
@@ -26,9 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ import java.util.Set;
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
-    private final PortfolioStockRepository portfolioStockRepository;
+    private final PortfolioItemRepository portfolioItemRepository;
     private final StockRepository stockRepository;
     private final UserRepository userRepository;
     private final PriceHistoryRepository priceHistoryRepository;
@@ -48,16 +47,12 @@ public class PortfolioService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        List<Stock> stocks = resolveStocks(request.tickers());
-
         Portfolio portfolio = portfolioRepository.save(new Portfolio(user, request.name().trim()));
 
-        List<PortfolioStock> portfolioStocks = stocks.stream()
-                .map(stock -> new PortfolioStock(portfolio, stock))
-                .toList();
-        portfolioStockRepository.saveAll(portfolioStocks);
+        List<PortfolioItem> portfolioItems = buildPortfolioItems(portfolio, request.items());
+        portfolioItemRepository.saveAll(portfolioItems);
 
-        return toDetailResponse(portfolio, portfolioStocks);
+        return toDetailResponse(portfolio, portfolioItems);
     }
 
     public PortfolioListResponse getMyPortfolios() {
@@ -67,16 +62,15 @@ public class PortfolioService {
 
         List<PortfolioSummaryResponse> items = portfolios.stream()
                 .map(portfolio -> {
-                    List<PortfolioStock> portfolioStocks =
-                            portfolioStockRepository.findByPortfolio_IdOrderByIdAsc(portfolio.getId());
-                    BigDecimal totalValuation = calculateTotalValuation(portfolioStocks);
+                    List<PortfolioItem> portfolioItems =
+                            portfolioItemRepository.findByPortfolio_IdOrderByIdAsc(portfolio.getId());
+                    BigDecimal totalValuation = calculateTotalValuation(portfolioItems);
 
                     return new PortfolioSummaryResponse(
                             portfolio.getId(),
                             portfolio.getName(),
-                            portfolioStocks.size(),
-                            totalValuation,
-                            portfolio.getCreatedAt()
+                            portfolioItems.size(),
+                            totalValuation
                     );
                 })
                 .toList();
@@ -88,10 +82,10 @@ public class PortfolioService {
         Long userId = getCurrentUserId();
         Portfolio portfolio = getOwnedPortfolio(portfolioId, userId);
 
-        List<PortfolioStock> portfolioStocks =
-                portfolioStockRepository.findByPortfolio_IdOrderByIdAsc(portfolioId);
+        List<PortfolioItem> portfolioItems =
+                portfolioItemRepository.findByPortfolio_IdOrderByIdAsc(portfolioId);
 
-        return toDetailResponse(portfolio, portfolioStocks);
+        return toDetailResponse(portfolio, portfolioItems);
     }
 
     @Transactional
@@ -101,18 +95,14 @@ public class PortfolioService {
 
         portfolio.rename(request.name().trim());
 
-        List<Stock> stocks = resolveStocks(request.tickers());
+        portfolioItemRepository.deleteByPortfolio_Id(portfolioId);
+        portfolioItemRepository.flush();
 
-        portfolioStockRepository.deleteByPortfolio_Id(portfolioId);
-        portfolioStockRepository.flush();
+        List<PortfolioItem> portfolioItems = buildPortfolioItems(portfolio, request.items());
+        portfolioItemRepository.saveAll(portfolioItems);
+        portfolioItemRepository.flush();
 
-        List<PortfolioStock> portfolioStocks = stocks.stream()
-                .map(stock -> new PortfolioStock(portfolio, stock))
-                .toList();
-        portfolioStockRepository.saveAll(portfolioStocks);
-        portfolioStockRepository.flush();
-
-        return toDetailResponse(portfolio, portfolioStocks);
+        return toDetailResponse(portfolio, portfolioItems);
     }
 
     @Transactional
@@ -120,8 +110,8 @@ public class PortfolioService {
         Long userId = getCurrentUserId();
         Portfolio portfolio = getOwnedPortfolio(portfolioId, userId);
 
-        portfolioStockRepository.deleteByPortfolio_Id(portfolioId);
-        portfolioStockRepository.flush();
+        portfolioItemRepository.deleteByPortfolio_Id(portfolioId);
+        portfolioItemRepository.flush();
         portfolioRepository.delete(portfolio);
     }
 
@@ -140,35 +130,33 @@ public class PortfolioService {
         return portfolio;
     }
 
-    private List<Stock> resolveStocks(List<String> tickers) {
-        Set<String> normalizedTickers = new LinkedHashSet<>();
-        for (String ticker : tickers) {
-            if (ticker == null || ticker.isBlank()) {
-                throw new CustomException(ErrorCode.BAD_REQUEST);
-            }
-            normalizedTickers.add(ticker.trim());
-        }
-
-        return normalizedTickers.stream()
-                .map(ticker -> stockRepository.findByTicker(ticker)
-                        .orElseThrow(() -> new CustomException(ErrorCode.STOCK_NOT_FOUND)))
+    private List<PortfolioItem> buildPortfolioItems(Portfolio portfolio, List<PortfolioItemRequest> items) {
+        return items.stream()
+                .map(item -> {
+                    Stock stock = stockRepository.findByTicker(item.ticker().trim())
+                            .orElseThrow(() -> new CustomException(ErrorCode.STOCK_NOT_FOUND));
+                    return new PortfolioItem(portfolio, stock, item.avgPrice(), item.quantity());
+                })
                 .toList();
     }
 
-    private PortfolioDetailResponse toDetailResponse(Portfolio portfolio, List<PortfolioStock> portfolioStocks) {
-        BigDecimal totalValuation = calculateTotalValuation(portfolioStocks);
+    private PortfolioDetailResponse toDetailResponse(Portfolio portfolio, List<PortfolioItem> portfolioItems) {
+        BigDecimal totalValuation = calculateTotalValuation(portfolioItems);
 
-        List<PortfolioDetailResponse.PortfolioStockItem> items = portfolioStocks.stream()
-                .map(portfolioStock -> {
-                    Stock stock = portfolioStock.getStock();
+        List<PortfolioDetailResponse.PortfolioItemDetail> items = portfolioItems.stream()
+                .map(portfolioItem -> {
+                    Stock stock = portfolioItem.getStock();
                     BigDecimal currentPrice = getCurrentPrice(stock.getId());
-                    BigDecimal weightPercent = calculateWeightPercent(currentPrice, totalValuation);
+                    BigDecimal evaluationAmount = currentPrice.multiply(BigDecimal.valueOf(portfolioItem.getQuantity()));
+                    BigDecimal weightPercent = calculateWeightPercent(evaluationAmount, totalValuation);
 
-                    return new PortfolioDetailResponse.PortfolioStockItem(
+                    return new PortfolioDetailResponse.PortfolioItemDetail(
                             stock.getId(),
                             stock.getTicker(),
                             stock.getName(),
                             stock.getMarket(),
+                            portfolioItem.getAvgPrice(),
+                            portfolioItem.getQuantity(),
                             currentPrice,
                             weightPercent
                     );
@@ -178,25 +166,25 @@ public class PortfolioService {
         return new PortfolioDetailResponse(
                 portfolio.getId(),
                 portfolio.getName(),
-                portfolioStocks.size(),
+                portfolioItems.size(),
                 totalValuation,
-                portfolio.getCreatedAt(),
                 items
         );
     }
 
-    private BigDecimal calculateTotalValuation(List<PortfolioStock> portfolioStocks) {
-        return portfolioStocks.stream()
-                .map(portfolioStock -> getCurrentPrice(portfolioStock.getStock().getId()))
+    private BigDecimal calculateTotalValuation(List<PortfolioItem> portfolioItems) {
+        return portfolioItems.stream()
+                .map(item -> getCurrentPrice(item.getStock().getId())
+                        .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private BigDecimal calculateWeightPercent(BigDecimal currentPrice, BigDecimal totalValuation) {
+    private BigDecimal calculateWeightPercent(BigDecimal evaluationAmount, BigDecimal totalValuation) {
         if (totalValuation.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
 
-        return currentPrice
+        return evaluationAmount
                 .divide(totalValuation, 6, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .setScale(2, RoundingMode.HALF_UP);
