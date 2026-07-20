@@ -7,7 +7,6 @@ public record PortfolioSummaryResponse(
         Long portfolioId,
         String name,
         int stockCount,
-        BigDecimal totalValuation,
-        LocalDateTime createdAt
+        BigDecimal totalValuation
 ) {
 }

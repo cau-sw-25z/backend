@@ -6,37 +6,37 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Getter
 @Entity
-@Table(
-        name = "portfolio_stocks",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uq_portfolio_stock",
-                        columnNames = {"portfolio_id", "stock_id"}
-                )
-        }
-)
+@Table(name = "portfolio_items")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PortfolioStock {
+public class PortfolioItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    // 소속 포트폴리오
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "portfolio_id", nullable = false)
     private Portfolio portfolio;
 
-    // 포트폴리오에 담긴 종목
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_id", nullable = false)
     private Stock stock;
 
-    public PortfolioStock(Portfolio portfolio, Stock stock) {
+    @Column(name = "avg_price", nullable = false, precision = 15, scale = 2)
+    private BigDecimal avgPrice;
+
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
+
+    public PortfolioItem(Portfolio portfolio, Stock stock, BigDecimal avgPrice, Integer quantity) {
         this.portfolio = portfolio;
         this.stock = stock;
+        this.avgPrice = avgPrice;
+        this.quantity = quantity;
     }
 }
