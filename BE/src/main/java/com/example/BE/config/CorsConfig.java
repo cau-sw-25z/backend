@@ -17,11 +17,12 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 프론트엔드 로컬 개발 서버 주소 허용
+        // 프론트엔드 로컬 개발 서버 및 배포 도메인 허용
         // Vite 기본 포트는 5173
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "http://101.79.23.233"       // FE 포트 확인 후 추가
+                "http://101.79.23.233",       // FE 포트 확인 후 추가
+                "https://frontend-lilac-sigma-12.vercel.app"  // FE-17 확정 프로덕션 도메인
         ));
 
         // 허용할 HTTP 메서드 목록
