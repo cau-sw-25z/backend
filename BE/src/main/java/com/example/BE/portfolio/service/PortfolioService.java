@@ -134,18 +134,14 @@ public class PortfolioService {
             throw new CustomException(ErrorCode.PORTFOLIO_ITEM_ALREADY_EXISTS);
         }
 
-        /*
-         * BE-18-1 요구사항상 추가 요청 body는 { ticker }만 받는다.
-         * 기존 portfolio_items 테이블은 avg_price, quantity가 NOT NULL이므로
-         * 종목 1개 추가 시 기본값으로
-         * - avgPrice: 최신 종가
-         * - quantity: 1
-         * 을 저장한다.
-         */
-        BigDecimal avgPrice = getCurrentPrice(stock.getId());
-        Integer quantity = 1;
-
-        portfolioItemRepository.save(new PortfolioItem(portfolio, stock, avgPrice, quantity));
+        portfolioItemRepository.save(
+                new PortfolioItem(
+                        portfolio,
+                        stock,
+                        request.avgPrice(),
+                        request.quantity()
+                )
+        );
 
         List<PortfolioItem> portfolioItems =
                 portfolioItemRepository.findByPortfolio_IdOrderByIdAsc(portfolioId);
