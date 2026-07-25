@@ -3,6 +3,7 @@ package com.example.BE.common.exception;
 import com.example.BE.common.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,6 +39,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.VALIDATION_FAILED.getHttpStatus())
                 .body(ApiResponse.error(ErrorCode.VALIDATION_FAILED.getCode(), message));
+    }
+
+    // JSON 형식 오류, enum 값 오류(BUY/SELL 외 값) 등을 400으로 처리
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException e
+    ) {
+        return ResponseEntity
+                .status(ErrorCode.BAD_REQUEST.getHttpStatus())
+                .body(ApiResponse.error(
+                        ErrorCode.BAD_REQUEST.getCode(),
+                        "요청 본문 형식이 올바르지 않습니다."
+                ));
     }
 
     // 위에서 처리하지 못한 예상치 못한 모든 예외를 처리하는 핸들러

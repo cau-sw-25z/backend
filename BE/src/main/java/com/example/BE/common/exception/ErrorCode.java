@@ -37,7 +37,10 @@ public enum ErrorCode {
     PORTFOLIO_NOT_FOUND(HttpStatus.NOT_FOUND, "PORTFOLIO_404", "포트폴리오를 찾을 수 없습니다."),
     PORTFOLIO_FORBIDDEN(HttpStatus.FORBIDDEN, "PORTFOLIO_403", "본인의 포트폴리오만 접근할 수 있습니다."),
     PORTFOLIO_ITEM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "PORTFOLIO_ITEM_400_DUPLICATE", "이미 포트폴리오에 등록된 종목입니다."),
-    PORTFOLIO_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "PORTFOLIO_ITEM_404", "포트폴리오에서 해당 종목을 찾을 수 없습니다.");
+    PORTFOLIO_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "PORTFOLIO_ITEM_404", "포트폴리오에서 해당 종목을 찾을 수 없습니다."),
+
+    // ── Trade ───────────────────────────────────────────────
+    TRADE_INSUFFICIENT_QUANTITY(HttpStatus.BAD_REQUEST, "TRADE_400_INSUFFICIENT_QUANTITY", "보유 수량보다 많은 수량을 매도할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

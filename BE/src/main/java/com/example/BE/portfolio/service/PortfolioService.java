@@ -19,6 +19,7 @@ import com.example.BE.stock.entity.PriceHistory;
 import com.example.BE.stock.entity.Stock;
 import com.example.BE.stock.repository.PriceHistoryRepository;
 import com.example.BE.stock.repository.StockRepository;
+import com.example.BE.trade.repository.TradeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
@@ -40,6 +41,7 @@ public class PortfolioService {
     private final StockRepository stockRepository;
     private final UserRepository userRepository;
     private final PriceHistoryRepository priceHistoryRepository;
+    private final TradeRepository tradeRepository;
 
     @Transactional
     public PortfolioDetailResponse createPortfolio(CreatePortfolioRequest request) {
@@ -110,6 +112,7 @@ public class PortfolioService {
 
         Portfolio portfolio = getOwnedPortfolio(portfolioId, userId);
 
+        tradeRepository.deleteAllByPortfolioId(portfolioId);
         portfolioItemRepository.deleteByPortfolio_Id(portfolioId);
         portfolioItemRepository.flush();
 
@@ -161,6 +164,7 @@ public class PortfolioService {
                 .findByPortfolio_IdAndStock_Ticker(portfolioId, normalizedTicker)
                 .orElseThrow(() -> new CustomException(ErrorCode.PORTFOLIO_ITEM_NOT_FOUND));
 
+        tradeRepository.deleteAllByPortfolioItemId(portfolioItem.getId());
         portfolioItemRepository.delete(portfolioItem);
         portfolioItemRepository.flush();
 
