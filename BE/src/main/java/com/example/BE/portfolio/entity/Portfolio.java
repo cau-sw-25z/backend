@@ -17,7 +17,6 @@ public class Portfolio {
     @Column(name = "id")
     private Long id;
 
-    // 포트폴리오 소유자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -25,9 +24,18 @@ public class Portfolio {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    public Portfolio(User user, String name) {
+    /*
+     * 프로젝트 확정 컨벤션
+     * 1 = 공격형
+     * 5 = 안정형
+     */
+    @Column(name = "risk_level", nullable = false)
+    private Integer riskLevel;
+
+    public Portfolio(User user, String name, Integer riskLevel) {
         this.user = user;
         this.name = name;
+        this.riskLevel = riskLevel;
     }
 
     public void rename(String name) {
