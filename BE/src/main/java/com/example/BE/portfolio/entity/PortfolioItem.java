@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Getter
 @Entity
@@ -38,5 +39,20 @@ public class PortfolioItem {
         this.stock = stock;
         this.avgPrice = avgPrice;
         this.quantity = quantity;
+    }
+
+    public void applyBuy(BigDecimal buyPrice, Integer buyQuantity) {
+        BigDecimal currentAmount = avgPrice.multiply(BigDecimal.valueOf(quantity));
+        BigDecimal buyAmount = buyPrice.multiply(BigDecimal.valueOf(buyQuantity));
+        int updatedQuantity = quantity + buyQuantity;
+
+        this.avgPrice = currentAmount
+                .add(buyAmount)
+                .divide(BigDecimal.valueOf(updatedQuantity), 2, RoundingMode.HALF_UP);
+        this.quantity = updatedQuantity;
+    }
+
+    public void applySell(Integer sellQuantity) {
+        this.quantity -= sellQuantity;
     }
 }
