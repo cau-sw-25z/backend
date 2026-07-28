@@ -17,7 +17,6 @@ public interface PortfolioWeightRepository
     );
 
     @Modifying(
-            clearAutomatically = true,
             flushAutomatically = true
     )
     @Query("""
