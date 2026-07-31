@@ -19,7 +19,9 @@ git clone https://github.com/cau-sw-25z/backend.git
 ## 환경변수
 | 변수명 | 설명 |
 |--------|------|
+| DB_USER | MySQL 계정명 |
 | DB_PASSWORD | MySQL 비밀번호 |
+| JWT_SECRET | JWT 서명용 시크릿 키 |
 
 ## 브랜치 전략
 - `main` : 최종 배포
